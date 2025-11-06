@@ -110,6 +110,7 @@ class TypingPractice {
         const defaults = {
             keyboardLayout: 'qwerty',
             language: 'english',
+            contentType: 'mixed',
             includeSpecialKeys: true,
             showTips: true,
             enableBreaks: true,
@@ -185,6 +186,12 @@ class TypingPractice {
             if (this.practiceState.isActive) this.generateNewText();
         });
 
+        document.getElementById('contentType').addEventListener('change', (e) => {
+            this.settings.contentType = e.target.value;
+            this.saveSettings();
+            if (this.practiceState.isActive) this.generateNewText();
+        });
+
         document.getElementById('includeSpecialKeys').addEventListener('change', (e) => {
             this.settings.includeSpecialKeys = e.target.checked;
             this.saveSettings();
@@ -256,6 +263,7 @@ class TypingPractice {
     loadSettingsToUI() {
         document.getElementById('keyboardLayout').value = this.settings.keyboardLayout;
         document.getElementById('language').value = this.settings.language;
+        document.getElementById('contentType').value = this.settings.contentType;
         document.getElementById('includeSpecialKeys').checked = this.settings.includeSpecialKeys;
         document.getElementById('showTips').checked = this.settings.showTips;
         document.getElementById('enableBreaks').checked = this.settings.enableBreaks;
@@ -338,6 +346,9 @@ class TypingPractice {
     generateNewText() {
         const difficulty = this.getDifficultyLevel();
 
+        // Clear input first to prevent highlighting issues
+        document.getElementById('typingInput').value = '';
+
         // Randomly decide whether to include special key (if enabled)
         if (this.settings.includeSpecialKeys && Math.random() < 0.2) {
             this.generateSpecialKeyPrompt();
@@ -360,7 +371,6 @@ class TypingPractice {
         this.renderTargetText();
 
         if (this.practiceState.isActive) {
-            document.getElementById('typingInput').value = '';
             document.getElementById('typingInput').placeholder = 'Start typing...';
             document.getElementById('typingInput').focus();
         }
@@ -503,48 +513,163 @@ class TypingPractice {
 
     // Generate natural language text
     generateNaturalText(language, difficulty) {
-        const texts = {
-            english: [
-                'The quick brown fox jumps over the lazy dog.',
-                'Practice makes perfect when learning to type.',
-                'Keep your fingers on the home row keys.',
-                'Touch typing is a valuable skill to develop.',
-                'Regular practice will improve your typing speed.',
-                'Focus on accuracy before worrying about speed.',
-                'Good posture is important for comfortable typing.'
-            ],
-            spanish: [
-                'El veloz murciélago hindú comía feliz cardillo.',
-                'La práctica hace al maestro.',
-                'Escribir sin mirar el teclado es útil.',
-                'La constancia es la clave del éxito.'
-            ],
-            french: [
-                'Portez ce vieux whisky au juge blond qui fume.',
-                'La pratique rend parfait.',
-                'Tapez sans regarder le clavier.',
-                'La patience est une vertu.'
-            ],
-            german: [
-                'Zwei flinke Boxer jagen die quirlige Eva.',
-                'Übung macht den Meister.',
-                'Schreiben ohne auf die Tastatur zu schauen.',
-                'Geduld ist eine Tugend.'
-            ]
-        };
+        const contentType = this.settings.contentType;
 
-        const langTexts = texts[language] || texts.english;
-
-        // Adjust length based on difficulty
-        let text = langTexts[Math.floor(Math.random() * langTexts.length)];
-
-        if (difficulty === 'easy') {
-            text = text.slice(0, 30);
-        } else if (difficulty === 'expert' && langTexts.length > 1) {
-            text = langTexts[Math.floor(Math.random() * langTexts.length)] + ' ' +
-                   langTexts[Math.floor(Math.random() * langTexts.length)];
+        // Mixed mode - pick a random content type
+        let actualContentType = contentType;
+        if (contentType === 'mixed') {
+            const types = ['typing-tips', 'lorem-ipsum', 'literature', 'quotes', 'conversation', 'facts'];
+            actualContentType = types[Math.floor(Math.random() * types.length)];
         }
 
+        switch (actualContentType) {
+            case 'typing-tips':
+                return this.generateTypingTips(difficulty);
+            case 'lorem-ipsum':
+                return this.generateLoremIpsum(difficulty);
+            case 'literature':
+                return this.generateLiterature(difficulty);
+            case 'quotes':
+                return this.generateQuotes(difficulty);
+            case 'conversation':
+                return this.generateConversation(difficulty);
+            case 'facts':
+                return this.generateFacts(difficulty);
+            default:
+                return this.generateTypingTips(difficulty);
+        }
+    }
+
+    // Generate typing tips
+    generateTypingTips(difficulty) {
+        const tips = [
+            'Keep your wrists elevated and straight while typing.',
+            'Use the bumps on F and J keys to position your index fingers correctly.',
+            'Practice typing common letter combinations like "th", "ch", and "ing".',
+            'Type with a light touch - don\'t press keys too hard.',
+            'Take breaks every 15 minutes to prevent repetitive strain injury.',
+            'Focus on accuracy first, speed will come naturally with practice.',
+            'Maintain good posture: back straight, feet flat on the floor.',
+            'The home row keys are ASDF for the left hand and JKL; for the right hand.',
+            'Use your pinky fingers for the shift keys, not your whole hand.',
+            'Practice regularly for short periods rather than long marathon sessions.',
+            'Don\'t look at the keyboard - trust your muscle memory.',
+            'Use all ten fingers when typing, each finger has specific keys.',
+            'Keep your eyes on the screen, not on the keyboard.',
+            'Type in rhythm to develop consistent speed and accuracy.'
+        ];
+        return this.adjustTextLength(tips[Math.floor(Math.random() * tips.length)], difficulty);
+    }
+
+    // Generate lorem ipsum
+    generateLoremIpsum(difficulty) {
+        const texts = [
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+            'Duis aute irure dolor in reprehenderit in voluptate velit.',
+            'Excepteur sint occaecat cupidatat non proident, sunt in culpa.',
+            'Qui officia deserunt mollit anim id est laborum et dolorum fuga.',
+            'Et harum quidem rerum facilis est et expedita distinctio.',
+            'Nam libero tempore, cum soluta nobis est eligendi optio.',
+            'Temporibus autem quibusdam et aut officiis debitis aut rerum.',
+            'Itaque earum rerum hic tenetur a sapiente delectus aut.'
+        ];
+        return this.adjustTextLength(texts[Math.floor(Math.random() * texts.length)], difficulty);
+    }
+
+    // Generate literature excerpts
+    generateLiterature(difficulty) {
+        const excerpts = [
+            'It was the best of times, it was the worst of times.',
+            'All happy families are alike; each unhappy family is unhappy in its own way.',
+            'Call me Ishmael. Some years ago, never mind how long precisely.',
+            'It is a truth universally acknowledged that a single man in possession of a good fortune must be in want of a wife.',
+            'The sun shone, having no alternative, on the nothing new.',
+            'Many years later, as he faced the firing squad, Colonel Aureliano Buendía recalled that distant afternoon.',
+            'It was a bright cold day in April, and the clocks were striking thirteen.',
+            'Ships at a distance have every man\'s wish on board.',
+            'In my younger and more vulnerable years my father gave me some advice.',
+            'Someone must have slandered Josef K., for one morning, without having done anything truly wrong, he was arrested.',
+            'Once upon a time and a very good time it was there was a moocow coming down the road.',
+            'Mother died today. Or maybe yesterday; I can\'t be sure.',
+            'The past is a foreign country; they do things differently there.',
+            'Happy families are all alike; every unhappy family is unhappy in its own way.'
+        ];
+        return this.adjustTextLength(excerpts[Math.floor(Math.random() * excerpts.length)], difficulty);
+    }
+
+    // Generate famous quotes
+    generateQuotes(difficulty) {
+        const quotes = [
+            'The only way to do great work is to love what you do.',
+            'In the middle of difficulty lies opportunity.',
+            'Life is what happens when you\'re busy making other plans.',
+            'The future belongs to those who believe in the beauty of their dreams.',
+            'It does not matter how slowly you go as long as you do not stop.',
+            'Everything you\'ve ever wanted is on the other side of fear.',
+            'Believe you can and you\'re halfway there.',
+            'The only impossible journey is the one you never begin.',
+            'Success is not final, failure is not fatal: it is the courage to continue that counts.',
+            'Don\'t watch the clock; do what it does. Keep going.',
+            'The best time to plant a tree was 20 years ago. The second best time is now.',
+            'Your time is limited, don\'t waste it living someone else\'s life.',
+            'Whether you think you can or you think you can\'t, you\'re right.',
+            'The only limit to our realization of tomorrow is our doubts of today.'
+        ];
+        return this.adjustTextLength(quotes[Math.floor(Math.random() * quotes.length)], difficulty);
+    }
+
+    // Generate conversation snippets
+    generateConversation(difficulty) {
+        const conversations = [
+            'How are you doing today? I\'m doing great, thanks for asking!',
+            'Would you like some coffee? Yes, please, with milk and sugar.',
+            'What time is the meeting? It starts at 3 PM in the conference room.',
+            'Did you see that movie? Yes, it was absolutely fantastic!',
+            'Can you help me with this? Of course, what do you need?',
+            'Where are you going? I\'m heading to the store to buy groceries.',
+            'Have you finished the report? Almost done, I just need another hour.',
+            'What do you think about this? I think it\'s a great idea!',
+            'How was your weekend? It was wonderful, I went hiking in the mountains.',
+            'Do you want to grab lunch? Sure, where would you like to go?',
+            'Is everything okay? Yes, everything is fine, don\'t worry.',
+            'When will you be back? I\'ll be back around 5 o\'clock.',
+            'Did you hear the news? No, what happened?',
+            'Can I ask you something? Of course, go ahead and ask.'
+        ];
+        return this.adjustTextLength(conversations[Math.floor(Math.random() * conversations.length)], difficulty);
+    }
+
+    // Generate interesting facts
+    generateFacts(difficulty) {
+        const facts = [
+            'Honey never spoils. Archaeologists have found 3000-year-old honey in Egyptian tombs.',
+            'Octopuses have three hearts and blue blood.',
+            'A day on Venus is longer than a year on Venus.',
+            'Bananas are berries, but strawberries are not.',
+            'The shortest war in history lasted only 38 minutes.',
+            'A group of flamingos is called a flamboyance.',
+            'Butterflies can taste with their feet.',
+            'The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.',
+            'Sharks have been around longer than trees.',
+            'Your brain uses 20% of your body\'s energy but is only 2% of your body weight.',
+            'Wombat poop is cube-shaped.',
+            'The longest English word without a vowel is "rhythms".',
+            'A bolt of lightning is five times hotter than the surface of the sun.',
+            'Polar bears have black skin under their white fur.'
+        ];
+        return this.adjustTextLength(facts[Math.floor(Math.random() * facts.length)], difficulty);
+    }
+
+    // Adjust text length based on difficulty
+    adjustTextLength(text, difficulty) {
+        if (difficulty === 'easy') {
+            return text.slice(0, Math.min(40, text.length));
+        } else if (difficulty === 'expert') {
+            // For expert, sometimes combine two sentences
+            return text;
+        }
         return text;
     }
 
