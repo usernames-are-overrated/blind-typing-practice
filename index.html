@@ -10,15 +10,20 @@
     <div id="app">
         <!-- Header -->
         <header>
-            <h1>Blind Typing Practice</h1>
-            <div class="skill-indicator">
-                <span class="skill-label">Skill Level:</span>
-                <span id="skillLevel">0</span>
-                <div class="skill-bar">
-                    <div id="skillProgress" class="skill-progress"></div>
+            <div class="header-left">
+                <h1>Blind Typing Practice</h1>
+                <div class="skill-indicator">
+                    <span id="skillLevel">0</span>
+                    <div class="skill-bar">
+                        <div id="skillProgress" class="skill-progress"></div>
+                    </div>
                 </div>
             </div>
+            <button id="settingsBtn" class="settings-icon-btn" aria-label="Settings">⚙️</button>
         </header>
+
+        <!-- Settings backdrop -->
+        <div id="settingsBackdrop" class="settings-backdrop"></div>
 
         <!-- Settings Panel -->
         <div id="settingsPanel" class="settings-panel">
@@ -163,7 +168,6 @@
             <!-- Controls -->
             <div class="controls">
                 <button id="resetBtn" class="btn-secondary">Reset</button>
-                <button id="settingsBtn" class="btn-secondary">Settings</button>
             </div>
         </main>
     </div>

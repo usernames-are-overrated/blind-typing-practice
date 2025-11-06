@@ -1,30 +1,35 @@
 :root {
     --primary-color: #4A90E2;
     --secondary-color: #50C878;
-    --text-color: #333;
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --tips-bg: rgba(255, 255, 255, 0.5);
-    --input-bg: rgba(255, 255, 255, 0.5);
-    --stats-bg: rgba(255, 255, 255, 0.5);
-    --border-color: rgba(0, 0, 0, 0.05);
-    --stat-label-color: #888;
-    --tip-text-color: #555;
-    --error-color: #e74c3c;
-    --success-color: #2ecc71;
+
+    /* Light mode colors - monochrome */
+    --text-color: #222;
+    --text-secondary: #666;
+    --bg-surface: rgba(255, 255, 255, 0.7);
+    --bg-elevated: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --button-bg: rgba(0, 0, 0, 0.05);
+    --button-hover: rgba(0, 0, 0, 0.1);
+    --button-text: #333;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
     --border-radius: 12px;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 body.dark-mode {
-    --text-color: #e0e0e0;
-    --card-bg: rgba(30, 30, 30, 0.95);
-    --tips-bg: rgba(40, 40, 40, 0.5);
-    --input-bg: rgba(40, 40, 40, 0.5);
-    --stats-bg: rgba(40, 40, 40, 0.5);
+    /* Dark mode colors - monochrome */
+    --text-color: #e8e8e8;
+    --text-secondary: #aaa;
+    --bg-surface: rgba(30, 30, 30, 0.7);
+    --bg-elevated: rgba(40, 40, 40, 0.9);
     --border-color: rgba(255, 255, 255, 0.1);
-    --stat-label-color: #aaa;
-    --tip-text-color: #bbb;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --button-bg: rgba(255, 255, 255, 0.08);
+    --button-hover: rgba(255, 255, 255, 0.15);
+    --button-text: #e8e8e8;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
 }
 
 * {
@@ -35,9 +40,7 @@ body.dark-mode {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg,
-        color-mix(in srgb, var(--primary-color) 15%, white),
-        color-mix(in srgb, var(--secondary-color) 15%, white));
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     min-height: 100vh;
     color: var(--text-color);
     line-height: 1.6;
@@ -51,45 +54,91 @@ body {
 
 /* Header */
 header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
     padding: 15px 20px;
-    background: var(--card-bg);
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     backdrop-filter: blur(10px);
 }
 
 header h1 {
-    color: var(--primary-color);
-    margin-bottom: 10px;
-    font-size: 1.8em;
+    color: var(--text-color);
+    font-size: 1.4em;
     font-weight: 600;
+    margin: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .skill-indicator {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    gap: 8px;
     font-size: 0.85em;
-    color: #888;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
 .skill-bar {
-    width: 200px;
-    height: 8px;
-    background: #e0e0e0;
-    border-radius: 4px;
+    width: 120px;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .skill-progress {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background: var(--text-color);
     transition: width 0.3s ease;
     width: 0%;
+}
+
+/* Settings button in header */
+.settings-icon-btn {
+    background: var(--button-bg);
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1.2em;
+    transition: background 0.2s ease;
+}
+
+.settings-icon-btn:hover {
+    background: var(--button-hover);
+}
+
+/* Settings backdrop */
+.settings-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.settings-backdrop.open {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Settings Panel */
@@ -174,7 +223,7 @@ header h1 {
 
 /* Main Content */
 main {
-    background: var(--card-bg);
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     padding: 25px;
@@ -183,17 +232,17 @@ main {
 
 /* Tips Section */
 .tips-section {
-    background: var(--tips-bg);
-    border-left: 3px solid var(--secondary-color);
-    padding: 15px 20px;
+    background: var(--bg-surface);
+    border-left: 2px solid var(--border-color);
+    padding: 12px 16px;
     margin-bottom: 20px;
     border-radius: var(--border-radius);
 }
 
 .tips-section h3 {
-    color: var(--primary-color);
-    margin-bottom: 10px;
-    font-size: 1em;
+    color: var(--text-color);
+    margin-bottom: 8px;
+    font-size: 0.9em;
     font-weight: 600;
 }
 
@@ -203,10 +252,11 @@ main {
 }
 
 .tips-section li {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     padding-left: 0;
-    font-size: 0.9em;
-    color: var(--tip-text-color);
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 .tips-section.hidden {
@@ -222,7 +272,7 @@ main {
     font-size: 1.4em;
     line-height: 1.8;
     padding: 20px;
-    background: var(--input-bg);
+    background: var(--bg-surface);
     border-radius: var(--border-radius);
     margin-bottom: 15px;
     min-height: 70px;
@@ -236,17 +286,17 @@ main {
 }
 
 .target-text .char.correct {
-    color: var(--success-color);
+    color: var(--accent-green);
 }
 
 .target-text .char.incorrect {
-    color: var(--error-color);
-    background: rgba(231, 76, 60, 0.1);
+    color: var(--accent-red);
+    background: rgba(231, 76, 60, 0.15);
 }
 
 .target-text .char.current {
-    background: var(--primary-color);
-    color: white;
+    background: var(--text-color);
+    color: var(--bg-elevated);
     padding: 2px 4px;
     border-radius: 2px;
 }
@@ -262,48 +312,31 @@ main {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-family: 'Courier New', monospace;
-    transition: all 0.3s ease;
-    background: var(--input-bg);
+    transition: all 0.2s ease;
+    background: var(--bg-surface);
     color: var(--text-color);
+}
+
+.input-area input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
 }
 
 .input-area input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
+    border-color: var(--text-color);
+    background: var(--bg-elevated);
 }
 
 .special-key-prompt {
-    text-align: center;
-    font-size: 1.3em;
-    padding: 15px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border-radius: var(--border-radius);
-    margin-bottom: 20px;
     display: none;
-}
-
-.special-key-prompt.active {
-    display: block;
-}
-
-.special-key-prompt .key-display {
-    font-weight: bold;
-    font-size: 1.5em;
-    margin: 10px 0;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    display: inline-block;
 }
 
 .practice-stats {
     display: flex;
     justify-content: space-around;
     padding: 15px;
-    background: var(--stats-bg);
+    background: var(--bg-surface);
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
 }
@@ -314,7 +347,7 @@ main {
 
 .stat-label {
     display: block;
-    color: var(--stat-label-color);
+    color: var(--text-secondary);
     font-size: 0.8em;
     margin-bottom: 3px;
     font-weight: 500;
@@ -323,7 +356,7 @@ main {
 .stat span:last-child {
     font-size: 1.4em;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--text-color);
 }
 
 /* Break Screen */
@@ -390,7 +423,7 @@ main {
 }
 
 .celebration-content {
-    background: var(--card-bg);
+    background: var(--bg-elevated);
     padding: 40px;
     border-radius: var(--border-radius);
     text-align: center;
@@ -399,7 +432,7 @@ main {
 }
 
 .celebration-content h2 {
-    color: var(--success-color);
+    color: var(--accent-green);
     font-size: 2.5em;
     margin-bottom: 20px;
 }
@@ -407,7 +440,7 @@ main {
 .celebration-content p {
     font-size: 1.2em;
     margin-bottom: 30px;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 @keyframes fadeIn {
@@ -430,37 +463,25 @@ main {
 
 .btn-primary,
 .btn-secondary {
-    padding: 12px 24px;
+    padding: 10px 20px;
     border: none;
     border-radius: var(--border-radius);
-    font-size: 1em;
+    font-size: 0.95em;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     font-weight: 500;
+    background: var(--button-bg);
+    color: var(--button-text);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.btn-secondary {
-    background: #f0f0f0;
-    color: var(--text-color);
-}
-
+.btn-primary:hover,
 .btn-secondary:hover {
-    background: #e0e0e0;
+    background: var(--button-hover);
 }
 
 .btn-primary:active,
 .btn-secondary:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
 .hidden {

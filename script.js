@@ -169,6 +169,7 @@ class TypingPractice {
         // Settings
         document.getElementById('settingsBtn').addEventListener('click', () => this.openSettings());
         document.getElementById('closeSettings').addEventListener('click', () => this.closeSettings());
+        document.getElementById('settingsBackdrop').addEventListener('click', () => this.closeSettings());
         document.getElementById('resetSettings').addEventListener('click', () => this.resetSettings());
 
         // Settings inputs
@@ -241,12 +242,14 @@ class TypingPractice {
     // Open settings panel
     openSettings() {
         document.getElementById('settingsPanel').classList.add('open');
+        document.getElementById('settingsBackdrop').classList.add('open');
         this.loadSettingsToUI();
     }
 
     // Close settings panel
     closeSettings() {
         document.getElementById('settingsPanel').classList.remove('open');
+        document.getElementById('settingsBackdrop').classList.remove('open');
     }
 
     // Load settings to UI
@@ -342,7 +345,6 @@ class TypingPractice {
         }
 
         this.specialKeyMode = false;
-        document.getElementById('specialKeyPrompt').classList.remove('active');
 
         let text = '';
         const language = this.settings.language;
@@ -359,6 +361,7 @@ class TypingPractice {
 
         if (this.practiceState.isActive) {
             document.getElementById('typingInput').value = '';
+            document.getElementById('typingInput').placeholder = 'Start typing...';
             document.getElementById('typingInput').focus();
         }
     }
@@ -371,9 +374,9 @@ class TypingPractice {
     // Get difficulty level based on skill
     getDifficultyLevel() {
         const level = this.skillData.level;
-        if (level < 10) return 'easy';
-        if (level < 30) return 'medium';
-        if (level < 60) return 'hard';
+        if (level < 25) return 'easy';
+        if (level < 50) return 'medium';
+        if (level < 75) return 'hard';
         return 'expert';
     }
 
@@ -393,11 +396,10 @@ class TypingPractice {
         this.currentSpecialKey = specialKeys[Math.floor(Math.random() * specialKeys.length)];
         this.specialKeyMode = true;
 
-        const prompt = document.getElementById('specialKeyPrompt');
-        prompt.innerHTML = `Press: <span class="key-display">${this.currentSpecialKey.display}</span>`;
-        prompt.classList.add('active');
-
-        document.getElementById('targetText').innerHTML = '';
+        // Show prompt in placeholder and target text
+        const promptText = `Press: ${this.currentSpecialKey.display}`;
+        document.getElementById('typingInput').placeholder = promptText;
+        document.getElementById('targetText').innerHTML = `<span style="color: var(--text-secondary);">${promptText}</span>`;
         document.getElementById('typingInput').value = '';
     }
 
@@ -647,18 +649,40 @@ class TypingPractice {
         const accuracy = this.getCurrentAccuracy();
         const wpm = this.getCurrentWPM();
 
-        // Calculate skill increase based on performance
-        let skillIncrease = 0.1;
+        // Calculate skill change based on performance (0-100 scale)
+        let skillChange = 0;
 
-        if (accuracy > 95) skillIncrease += 0.2;
-        if (accuracy > 98) skillIncrease += 0.3;
-        if (wpm > 40) skillIncrease += 0.2;
-        if (wpm > 60) skillIncrease += 0.3;
-        if (isSpecialKey) skillIncrease += 0.5;
+        // Accuracy-based adjustment
+        if (accuracy >= 98) {
+            skillChange += 0.8;
+        } else if (accuracy >= 95) {
+            skillChange += 0.5;
+        } else if (accuracy >= 90) {
+            skillChange += 0.2;
+        } else if (accuracy < 80) {
+            skillChange -= 0.3;
+        } else if (accuracy < 85) {
+            skillChange -= 0.1;
+        }
 
-        const oldLevel = Math.floor(this.skillData.level);
-        this.skillData.level += skillIncrease;
-        const newLevel = Math.floor(this.skillData.level);
+        // WPM-based adjustment (relative to skill level)
+        const expectedWPM = 20 + (this.skillData.level * 0.6); // Expected WPM increases with skill
+        if (wpm > expectedWPM + 10) {
+            skillChange += 0.5;
+        } else if (wpm > expectedWPM) {
+            skillChange += 0.2;
+        } else if (wpm < expectedWPM - 10) {
+            skillChange -= 0.2;
+        }
+
+        // Special key bonus
+        if (isSpecialKey) {
+            skillChange += 0.5;
+        }
+
+        // Apply skill change with bounds
+        const oldLevel = this.skillData.level;
+        this.skillData.level = Math.max(0, Math.min(100, this.skillData.level + skillChange));
 
         // Update averages
         this.skillData.averageWPM = (this.skillData.averageWPM * 0.9) + (wpm * 0.1);
@@ -667,9 +691,11 @@ class TypingPractice {
         this.saveSkillData();
         this.updateUI();
 
-        // Celebrate level up
-        if (newLevel > oldLevel) {
-            this.celebrateLevelUp(newLevel);
+        // Celebrate milestone (every 10 points)
+        const oldMilestone = Math.floor(oldLevel / 10);
+        const newMilestone = Math.floor(this.skillData.level / 10);
+        if (newMilestone > oldMilestone) {
+            this.celebrateLevelUp(Math.floor(this.skillData.level));
         }
     }
 
@@ -763,10 +789,9 @@ class TypingPractice {
     // Update UI
     updateUI() {
         const level = Math.floor(this.skillData.level);
-        const progress = (this.skillData.level % 1) * 100;
 
         document.getElementById('skillLevel').textContent = level;
-        document.getElementById('skillProgress').style.width = progress + '%';
+        document.getElementById('skillProgress').style.width = level + '%';
     }
 
     // Check if it's time for a break
