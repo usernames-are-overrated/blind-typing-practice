@@ -20,6 +20,8 @@ class TypingPractice {
 
         this.specialKeyMode = false;
         this.currentSpecialKey = null;
+        this.currentTipIndex = 0;
+        this.tips = this.getAllTips();
 
         this.init();
     }
@@ -30,6 +32,7 @@ class TypingPractice {
         this.bindEvents();
         this.updateUI();
         this.generateNewText();
+        this.displayTips();
 
         if (!this.settings.showTips) {
             document.getElementById('tipsSection').classList.add('hidden');
@@ -37,6 +40,64 @@ class TypingPractice {
 
         // Check for breaks periodically
         setInterval(() => this.checkBreakTime(), 60000); // Check every minute
+
+        // Rotate tips every 30 seconds
+        setInterval(() => this.rotateTips(), 30000);
+    }
+
+    // Get all tips
+    getAllTips() {
+        return [
+            "Keep your fingers on the home row (ASDF for left, JKL; for right)",
+            "Use the bumps on F and J keys to position your index fingers",
+            "Don't look at the keyboard - trust your muscle memory",
+            "Maintain good posture: back straight, feet flat on the floor",
+            "Type with a light touch - don't press keys too hard",
+            "Practice regularly for short periods rather than long sessions",
+            "Left pinky: Q, A, Z, Shift, Ctrl, Tab",
+            "Left ring finger: W, S, X",
+            "Left middle finger: E, D, C",
+            "Left index finger: R, F, V, T, G, B",
+            "Right index finger: Y, H, N, U, J, M",
+            "Right middle finger: I, K, comma",
+            "Right ring finger: O, L, period",
+            "Right pinky: P, semicolon, forward slash, brackets, Enter",
+            "Thumbs are used for the space bar",
+            "Start slow and focus on accuracy, speed will come naturally",
+            "Take breaks to prevent strain and maintain focus",
+            "Keep your wrists elevated and straight while typing",
+            "Use all ten fingers - avoid hunting and pecking",
+            "Practice common letter combinations and words"
+        ];
+    }
+
+    // Display random tips
+    displayTips() {
+        const tipsList = document.getElementById('tipsList');
+        tipsList.innerHTML = '';
+
+        // Display 3 random tips
+        const displayedTips = [];
+        const tipsCopy = [...this.tips];
+
+        for (let i = 0; i < 3 && tipsCopy.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * tipsCopy.length);
+            displayedTips.push(tipsCopy[randomIndex]);
+            tipsCopy.splice(randomIndex, 1);
+        }
+
+        displayedTips.forEach(tip => {
+            const li = document.createElement('li');
+            li.textContent = tip;
+            tipsList.appendChild(li);
+        });
+    }
+
+    // Rotate tips
+    rotateTips() {
+        if (this.settings.showTips && !document.getElementById('tipsSection').classList.contains('hidden')) {
+            this.displayTips();
+        }
     }
 
     // Load settings from localStorage
@@ -374,7 +435,54 @@ class TypingPractice {
             ]
         };
 
-        const langSnippets = snippets[language] || snippets.javascript;
+        // Swedish-specific code snippets with åöä characters
+        const swedishSnippets = {
+            javascript: [
+                'const hälsning = "Hej, världen!";',
+                'function läggTill(a, b) { return a + b; }',
+                'const städer = ["Stockholm", "Göteborg", "Malmö"];',
+                'const objekt = { nyckel: "värde", räknare: 42 };',
+                'användare.forEach(u => console.log(u.ålder));'
+            ],
+            python: [
+                'def hälsa(namn): return f"Hej, {namn}"',
+                'städer = ["Stockholm", "Göteborg", "Malmö"]',
+                'class Person: def __init__(self, namn, ålder): pass',
+                'data = {"förnamn": "Erik", "ålder": 25}',
+                'sträng = "åäö".upper()'
+            ],
+            java: [
+                'String meddelande = "Hälsningar från Sverige";',
+                'String[] städer = {"Stockholm", "Göteborg", "Malmö"};',
+                'int ålder = 25; // Ålder i år',
+                'List<String> länder = new ArrayList<>();'
+            ],
+            cpp: [
+                'std::string hälsning = "Hej världen";',
+                'std::vector<std::string> städer = {"Malmö", "Örebro"};',
+                'char bokstäver[] = "åäö";'
+            ],
+            html: [
+                '<h1>Välkommen till vår sida</h1>',
+                '<p>Läs mer om våra tjänster här</p>',
+                '<input type="text" placeholder="Ange ditt förnamn">',
+                '<button>Lägg till</button>'
+            ],
+            css: [
+                '.rubrik { färg: blå; bakgrund: grön; }',
+                '/* Stöd för åäö i CSS-kommentarer */',
+                '.knapp:hover { övergång: 0.3s; }'
+            ]
+        };
+
+        let langSnippets = snippets[language] || snippets.javascript;
+
+        // Use Swedish snippets if Swedish keyboard is selected
+        if (this.settings.keyboardLayout === 'qwerty-swedish' && swedishSnippets[language]) {
+            // Mix regular and Swedish snippets
+            langSnippets = [...langSnippets, ...swedishSnippets[language]];
+        }
+
         return langSnippets[Math.floor(Math.random() * langSnippets.length)];
     }
 
@@ -552,6 +660,7 @@ class TypingPractice {
         const overlay = document.getElementById('celebrationOverlay');
         const title = document.getElementById('celebrationTitle');
         const message = document.getElementById('celebrationMessage');
+        const closeButton = document.getElementById('closeCelebration');
 
         title.textContent = `🎉 Level ${level}! 🎉`;
 
@@ -569,9 +678,21 @@ class TypingPractice {
 
         overlay.classList.remove('hidden');
 
+        // Focus the close button instead of the input field
+        setTimeout(() => {
+            closeButton.focus();
+        }, 100);
+
+        // Rotate tips on level up
+        this.displayTips();
+
         // Auto-close after 3 seconds
         setTimeout(() => {
             overlay.classList.add('hidden');
+            // Return focus to typing input if practice is active
+            if (this.practiceState.isActive && !this.practiceState.isPaused) {
+                document.getElementById('typingInput').focus();
+            }
         }, 3000);
     }
 
