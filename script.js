@@ -29,6 +29,7 @@ class TypingPractice {
     // Initialize the application
     init() {
         this.applyColorScheme();
+        this.applyDarkMode();
         this.bindEvents();
         this.updateUI();
         this.generateNewText();
@@ -37,6 +38,10 @@ class TypingPractice {
         if (!this.settings.showTips) {
             document.getElementById('tipsSection').classList.add('hidden');
         }
+
+        // Enable typing input immediately
+        document.getElementById('typingInput').disabled = false;
+        document.getElementById('typingInput').focus();
 
         // Check for breaks periodically
         setInterval(() => this.checkBreakTime(), 60000); // Check every minute
@@ -109,6 +114,7 @@ class TypingPractice {
             showTips: true,
             enableBreaks: true,
             breakInterval: 15,
+            darkMode: false,
             primaryColor: '#4A90E2',
             secondaryColor: '#50C878'
         };
@@ -147,6 +153,15 @@ class TypingPractice {
     applyColorScheme() {
         document.documentElement.style.setProperty('--primary-color', this.settings.primaryColor);
         document.documentElement.style.setProperty('--secondary-color', this.settings.secondaryColor);
+    }
+
+    // Apply dark mode
+    applyDarkMode() {
+        if (this.settings.darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
     }
 
     // Bind event listeners
@@ -190,6 +205,12 @@ class TypingPractice {
             this.saveSettings();
         });
 
+        document.getElementById('darkMode').addEventListener('change', (e) => {
+            this.settings.darkMode = e.target.checked;
+            this.saveSettings();
+            this.applyDarkMode();
+        });
+
         document.getElementById('primaryColor').addEventListener('change', (e) => {
             this.settings.primaryColor = e.target.value;
             this.saveSettings();
@@ -203,8 +224,6 @@ class TypingPractice {
         });
 
         // Practice controls
-        document.getElementById('startBtn').addEventListener('click', () => this.startPractice());
-        document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
         document.getElementById('resetBtn').addEventListener('click', () => this.resetPractice());
 
         // Typing input
@@ -238,6 +257,7 @@ class TypingPractice {
         document.getElementById('showTips').checked = this.settings.showTips;
         document.getElementById('enableBreaks').checked = this.settings.enableBreaks;
         document.getElementById('breakInterval').value = this.settings.breakInterval;
+        document.getElementById('darkMode').checked = this.settings.darkMode;
         document.getElementById('primaryColor').value = this.settings.primaryColor;
         document.getElementById('secondaryColor').value = this.settings.secondaryColor;
     }
@@ -249,6 +269,7 @@ class TypingPractice {
             this.settings = this.loadSettings();
             this.loadSettingsToUI();
             this.applyColorScheme();
+            this.applyDarkMode();
             this.updateUI();
         }
     }
@@ -264,26 +285,20 @@ class TypingPractice {
         this.practiceState.totalChars = 0;
         this.practiceState.correctChars = 0;
 
-        document.getElementById('startBtn').classList.add('hidden');
-        document.getElementById('pauseBtn').classList.remove('hidden');
         document.getElementById('typingInput').focus();
         document.getElementById('typingInput').disabled = false;
 
         this.startTimer();
-        this.generateNewText();
     }
 
     // Toggle pause
     togglePause() {
         this.practiceState.isPaused = !this.practiceState.isPaused;
-        const pauseBtn = document.getElementById('pauseBtn');
 
         if (this.practiceState.isPaused) {
-            pauseBtn.textContent = 'Resume';
             clearInterval(this.practiceState.timerInterval);
             document.getElementById('typingInput').disabled = true;
         } else {
-            pauseBtn.textContent = 'Pause';
             this.startTimer();
             document.getElementById('typingInput').disabled = false;
             document.getElementById('typingInput').focus();
@@ -301,10 +316,8 @@ class TypingPractice {
 
         clearInterval(this.practiceState.timerInterval);
 
-        document.getElementById('startBtn').classList.remove('hidden');
-        document.getElementById('pauseBtn').classList.add('hidden');
         document.getElementById('typingInput').value = '';
-        document.getElementById('typingInput').disabled = true;
+        document.getElementById('typingInput').focus();
         document.getElementById('specialKeyPrompt').classList.remove('active');
 
         this.updateStats();
@@ -563,7 +576,12 @@ class TypingPractice {
 
     // Handle input
     handleInput(e) {
-        if (!this.practiceState.isActive || this.practiceState.isPaused || this.specialKeyMode) {
+        // Auto-start practice when user starts typing
+        if (!this.practiceState.isActive) {
+            this.startPractice();
+        }
+
+        if (this.practiceState.isPaused || this.specialKeyMode) {
             return;
         }
 
