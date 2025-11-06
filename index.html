@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Typing Practice</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <h1>Blind Typing Practice</h1>
+            <div class="skill-indicator">
+                <span class="skill-label">Skill Level:</span>
+                <span id="skillLevel">0</span>
+                <div class="skill-bar">
+                    <div id="skillProgress" class="skill-progress"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel">
+            <button id="closeSettings" class="close-btn">&times;</button>
+            <h2>Settings</h2>
+
+            <div class="setting-group">
+                <label for="keyboardLayout">Keyboard Layout:</label>
+                <select id="keyboardLayout">
+                    <option value="qwerty">QWERTY</option>
+                    <option value="dvorak">Dvorak</option>
+                    <option value="colemak">Colemak</option>
+                    <option value="azerty">AZERTY</option>
+                    <option value="qwertz">QWERTZ</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label for="language">Language:</label>
+                <select id="language">
+                    <option value="english">English</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="french">French</option>
+                    <option value="german">German</option>
+                    <option value="italian">Italian</option>
+                    <option value="portuguese">Portuguese</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="csharp">C#</option>
+                    <option value="rust">Rust</option>
+                    <option value="go">Go</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="includeSpecialKeys" checked>
+                    Include Special Keys (Ctrl, Alt, Shift, Enter, Tab)
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="showTips" checked>
+                    Show Tips and Instructions
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="enableBreaks" checked>
+                    Enable Micro Breaks (RSI Prevention)
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <label for="breakInterval">Break Interval (minutes):</label>
+                <input type="number" id="breakInterval" min="5" max="60" value="15">
+            </div>
+
+            <div class="setting-group">
+                <label>Color Scheme:</label>
+                <div class="color-picker-group">
+                    <div>
+                        <label for="primaryColor">Primary:</label>
+                        <input type="color" id="primaryColor" value="#4A90E2">
+                    </div>
+                    <div>
+                        <label for="secondaryColor">Secondary:</label>
+                        <input type="color" id="secondaryColor" value="#50C878">
+                    </div>
+                </div>
+            </div>
+
+            <button id="resetSettings" class="btn-secondary">Reset to Defaults</button>
+        </div>
+
+        <!-- Main Content -->
+        <main id="mainContent">
+            <!-- Tips Section -->
+            <div id="tipsSection" class="tips-section">
+                <h3>Tips for Blind Typing</h3>
+                <ul id="tipsList">
+                    <li>Keep your fingers on the home row (ASDF for left hand, JKL; for right hand)</li>
+                    <li>Use the bumps on F and J keys to position your index fingers</li>
+                    <li>Don't look at the keyboard - trust your muscle memory</li>
+                    <li>Maintain good posture: back straight, feet flat on the floor</li>
+                    <li>Type with a light touch - don't press keys too hard</li>
+                    <li>Practice regularly for short periods rather than long sessions</li>
+                </ul>
+            </div>
+
+            <!-- Practice Area -->
+            <div id="practiceArea" class="practice-area">
+                <div id="targetText" class="target-text"></div>
+                <div id="inputArea" class="input-area">
+                    <input type="text" id="typingInput" placeholder="Start typing..." autocomplete="off" spellcheck="false">
+                </div>
+                <div id="specialKeyPrompt" class="special-key-prompt"></div>
+                <div class="practice-stats">
+                    <div class="stat">
+                        <span class="stat-label">WPM:</span>
+                        <span id="wpm">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Accuracy:</span>
+                        <span id="accuracy">100%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Time:</span>
+                        <span id="timer">0:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Break Screen -->
+            <div id="breakScreen" class="break-screen hidden">
+                <div class="break-content">
+                    <h2>Time for a Micro Break!</h2>
+                    <p>Take a moment to rest your hands and eyes.</p>
+                    <div id="breakTimer" class="break-timer">30</div>
+                    <p class="break-tip" id="breakTip"></p>
+                    <button id="skipBreak" class="btn-secondary">Skip Break</button>
+                </div>
+            </div>
+
+            <!-- Celebration Overlay -->
+            <div id="celebrationOverlay" class="celebration-overlay hidden">
+                <div class="celebration-content">
+                    <h2 id="celebrationTitle"></h2>
+                    <p id="celebrationMessage"></p>
+                    <button id="closeCelebration" class="btn-primary">Continue</button>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="startBtn" class="btn-primary">Start Practice</button>
+                <button id="pauseBtn" class="btn-secondary hidden">Pause</button>
+                <button id="resetBtn" class="btn-secondary">Reset</button>
+                <button id="settingsBtn" class="btn-secondary">Settings</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
